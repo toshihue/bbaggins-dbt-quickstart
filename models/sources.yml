@@ -1,0 +1,36 @@
+version: 2
+
+sources:
+  - name: jaffle_shop
+    description: jaffle shop サンプルドメインの生データです。
+    database: dbt-tutorial
+    schema: jaffle_shop
+    tables:
+      - name: customers
+        description: アプリケーションDBにある顧客の生テーブルです。
+        columns:
+          - name: id
+            description: 顧客レコードを一意に識別する主キーです。
+            data_tests:
+              - unique
+              - not_null
+          - name: first_name
+            description: 顧客の名です。
+          - name: last_name
+            description: 顧客の姓です。
+      - name: orders
+        description: アプリケーションDBにある注文の生テーブルです。
+        columns:
+          - name: id
+            description: 注文レコードを一意に識別する主キーです。
+            data_tests:
+              - unique
+              - not_null
+          - name: user_id
+            description: 注文した顧客を表す外部キーです。
+            data_tests:
+              - not_null
+          - name: order_date
+            description: 注文日です。
+          - name: status
+            description: 注文の現在ステータスです。
