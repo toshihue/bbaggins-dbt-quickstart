@@ -1,0 +1,41 @@
+version: 2
+
+models:
+  - name: customers
+    description: 顧客ごとに1行となる mart モデルです。初回注文日、最新注文日、注文回数を付与しています。
+    columns:
+      - name: customer_id
+        description: 顧客を一意に識別する主キーです。
+        data_tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: 顧客の名です。
+      - name: last_name
+        description: 顧客の姓です。
+      - name: first_order_date
+        description: 顧客の初回注文日です。注文実績がない場合は null になります。
+      - name: most_recent_order_date
+        description: 顧客の最新注文日です。注文実績がない場合は null になります。
+      - name: number_of_orders
+        description: 顧客の注文回数です。
+        data_tests:
+          - not_null
+
+unit_tests:
+  - name: test_customers_aggregates_order_history
+    description: 顧客の注文集計が正しく計算され、注文のない顧客も 0 件で残ることを検証します。
+    model: customers
+    given:
+      - input: ref('stg_customers')
+        rows:
+          - {customer_id: 1, first_name: Hanako, last_name: Sato}
+          - {customer_id: 2, first_name: Taro, last_name: Suzuki}
+      - input: ref('stg_orders')
+        rows:
+          - {order_id: 101, customer_id: 1, order_date: '2024-01-10', status: completed}
+          - {order_id: 102, customer_id: 1, order_date: '2024-02-15', status: shipped}
+    expect:
+      rows:
+        - {customer_id: 1, first_name: Hanako, last_name: Sato, first_order_date: '2024-01-10', most_recent_order_date: '2024-02-15', number_of_orders: 2}
+        - {customer_id: 2, first_name: Taro, last_name: Suzuki, first_order_date: null, most_recent_order_date: null, number_of_orders: 0}
